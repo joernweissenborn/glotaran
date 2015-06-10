@@ -60,7 +60,11 @@ public class Supervisor extends UntypedActor {
     public void onReceive(Object msg) {
         System.out.println(msg);
         if (msg == Msg.DONE) {
-            idleWorker.add(getSender());
+            if (!pending.isEmpty()) {
+                getSender().tell(pending.poll(),getSelf());
+            } else {
+                idleWorker.add(getSender());
+            }
         } else if (msg instanceof Analysis) {
             if (workerFree()){
                 doAnalysis((Analysis) msg);
